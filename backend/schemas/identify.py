@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List, Literal
 
-AgeBracket = Literal["child", "teen", "adult", "senior"]
+AgeBracket = Literal["kid", "teen", "adult", "senior"]
 
 class Personalization(BaseModel):
     age_bracket: Optional[AgeBracket] = None

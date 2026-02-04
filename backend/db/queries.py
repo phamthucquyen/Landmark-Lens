@@ -44,9 +44,9 @@ def get_profile(user_id: str) -> Optional[dict[str, Any]]:
             "age_bracket": "adult",
             "interests": ["history", "architecture", "art", "culture"]
         },
-        "child-user": {
-            "user_id": "child-user",
-            "age_bracket": "child",
+        "kid-user": {
+            "user_id": "kid-user",
+            "age_bracket": "kid",
             "interests": ["animals", "nature", "science"]
         }
     }
