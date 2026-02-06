@@ -5,12 +5,10 @@ from dotenv import load_dotenv
 from routes import identify, wrapped
 import uvicorn
 
-# Load environment variables
 load_dotenv()
 
 app = FastAPI(title="Landmark Lens API", version="1.0.0")
 
-# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,7 +17,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
 app.include_router(identify.router)
 app.include_router(wrapped.router)
 

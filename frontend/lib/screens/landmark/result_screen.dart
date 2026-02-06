@@ -32,14 +32,15 @@ class _LandmarkResultScreenState extends State<LandmarkResultScreen> {
     final location = widget.landmarkData['location'] ?? '';
     final tags = List<String>.from(widget.landmarkData['tags'] ?? []);
     final description = widget.landmarkData['description'] ?? '';
-    
+
     // Extract fun_facts
     final funFacts = widget.landmarkData['fun_facts'] ?? {};
     final matchFacts = List<String>.from(funFacts['match_facts'] ?? []);
     final discoveryFacts = List<String>.from(funFacts['discovery_facts'] ?? []);
-    
+
     // Extract suggested questions
-    final suggestedQuestions = List<String>.from(widget.landmarkData['suggested_questions'] ?? []);
+    final suggestedQuestions =
+        List<String>.from(widget.landmarkData['suggested_questions'] ?? []);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -99,7 +100,8 @@ class _LandmarkResultScreenState extends State<LandmarkResultScreen> {
                         runSpacing: 8,
                         children: tags.map((tag) {
                           return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
                               color: const Color(0xFFEEF2FF),
                               borderRadius: BorderRadius.circular(16),
@@ -123,7 +125,8 @@ class _LandmarkResultScreenState extends State<LandmarkResultScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
                         children: [
-                          const Icon(Icons.location_on, size: 28, color: Colors.black54),
+                          const Icon(Icons.location_on,
+                              size: 28, color: Colors.black54),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -138,7 +141,9 @@ class _LandmarkResultScreenState extends State<LandmarkResultScreen> {
                           ),
                           IconButton(
                             icon: Icon(
-                              _isSpeaking ? Icons.volume_up : Icons.volume_up_outlined,
+                              _isSpeaking
+                                  ? Icons.volume_up
+                                  : Icons.volume_up_outlined,
                               size: 28,
                               color: Colors.black54,
                             ),
@@ -150,7 +155,8 @@ class _LandmarkResultScreenState extends State<LandmarkResultScreen> {
 
                     // Location
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
                       child: Text(
                         location,
                         style: const TextStyle(
@@ -163,7 +169,8 @@ class _LandmarkResultScreenState extends State<LandmarkResultScreen> {
 
                     // Description heading
                     const Padding(
-                      padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: 8.0),
+                      padding: EdgeInsets.only(
+                          left: 16.0, right: 16.0, top: 16.0, bottom: 8.0),
                       child: Text(
                         'Description',
                         style: TextStyle(
@@ -178,7 +185,8 @@ class _LandmarkResultScreenState extends State<LandmarkResultScreen> {
 
                     // Description text
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
                       child: Text(
                         description,
                         style: const TextStyle(
@@ -189,7 +197,7 @@ class _LandmarkResultScreenState extends State<LandmarkResultScreen> {
                         ),
                       ),
                     ),
-                    
+
                     // Just for You section (match_facts)
                     if (matchFacts.isNotEmpty) ...[
                       const SizedBox(height: 24),
@@ -207,27 +215,30 @@ class _LandmarkResultScreenState extends State<LandmarkResultScreen> {
                       ),
                       const SizedBox(height: 12),
                       ...matchFacts.map((fact) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('• ', style: TextStyle(fontSize: 16, color: Colors.black87)),
-                            Expanded(
-                              child: Text(
-                                fact,
-                                style: const TextStyle(
-                                  fontFamily: 'Arimo',
-                                  fontSize: 16,
-                                  color: Colors.black87,
-                                  height: 1.5,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 4.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('• ',
+                                    style: TextStyle(
+                                        fontSize: 16, color: Colors.black87)),
+                                Expanded(
+                                  child: Text(
+                                    fact,
+                                    style: const TextStyle(
+                                      fontFamily: 'Arimo',
+                                      fontSize: 16,
+                                      color: Colors.black87,
+                                      height: 1.5,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
-                      )),
+                          )),
                     ],
-                    
+
                     // Fun Facts section (discovery_facts)
                     if (discoveryFacts.isNotEmpty) ...[
                       const SizedBox(height: 24),
@@ -245,27 +256,30 @@ class _LandmarkResultScreenState extends State<LandmarkResultScreen> {
                       ),
                       const SizedBox(height: 12),
                       ...discoveryFacts.map((fact) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('• ', style: TextStyle(fontSize: 16, color: Colors.black87)),
-                            Expanded(
-                              child: Text(
-                                fact,
-                                style: const TextStyle(
-                                  fontFamily: 'Arimo',
-                                  fontSize: 16,
-                                  color: Colors.black87,
-                                  height: 1.5,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 4.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('• ',
+                                    style: TextStyle(
+                                        fontSize: 16, color: Colors.black87)),
+                                Expanded(
+                                  child: Text(
+                                    fact,
+                                    style: const TextStyle(
+                                      fontFamily: 'Arimo',
+                                      fontSize: 16,
+                                      color: Colors.black87,
+                                      height: 1.5,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
-                      )),
+                          )),
                     ],
-                    
+
                     // Suggested Questions section
                     if (suggestedQuestions.isNotEmpty) ...[
                       const SizedBox(height: 24),
@@ -283,46 +297,47 @@ class _LandmarkResultScreenState extends State<LandmarkResultScreen> {
                       ),
                       const SizedBox(height: 12),
                       ...suggestedQuestions.map((question) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
-                        child: InkWell(
-                          onTap: () {
-                            // TODO: Open chat with this question
-                            print('Question tapped: $question');
-                          },
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2.0),
-                                child: const Icon(
-                                  Icons.chat_bubble_outline,
-                                  size: 18,
-                                  color: Color(0xFF1F8A70),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  question,
-                                  style: const TextStyle(
-                                    fontFamily: 'Arimo',
-                                    fontSize: 15,
-                                    color: Color(0xFF1F8A70),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 6.0),
+                            child: InkWell(
+                              onTap: () {
+                                // TODO: Open chat with this question
+                                print('Question tapped: $question');
+                              },
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2.0),
+                                    child: const Icon(
+                                      Icons.chat_bubble_outline,
+                                      size: 18,
+                                      color: Color(0xFF1F8A70),
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      question,
+                                      style: const TextStyle(
+                                        fontFamily: 'Arimo',
+                                        fontSize: 15,
+                                        color: Color(0xFF1F8A70),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 3),
+                                    child: const Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 14,
+                                      color: Color(0xFF1F8A70),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 3),
-                                child: const Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 14,
-                                  color: Color(0xFF1F8A70),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )),
+                            ),
+                          )),
                     ],
 
                     const SizedBox(height: 80),
