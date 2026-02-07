@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -10,6 +11,11 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   String? _selectedAge;
   final Set<String> _interests = <String>{};
+
+  bool _saving = false;
+  String? _error;
+
+  SupabaseClient get _sb => Supabase.instance.client;
 
   final List<String> _ageGroups = <String>[
     '0-12 (Kid)',
@@ -31,8 +37,51 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     'Music',
   ];
 
+  String _prettyError(Object e) {
+    if (e is AuthException) return e.message;
+    return e.toString();
+  }
+
+  Future<void> _saveAndContinue() async {
+    if (_selectedAge == null) return;
+
+    final user = _sb.auth.currentUser;
+    if (user == null) {
+      setState(() => _error = 'Please log in again.');
+      return;
+    }
+
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+
+    try {
+      // interest column is text => store as comma-separated string
+      final interestText = _interests.isEmpty ? null : _interests.join(', ');
+
+      await _sb.from('profiles').upsert({
+        'id': user.id,
+        'email': user.email,
+        'age_group': _selectedAge,
+        'interest': _interests.isEmpty ? null : _interests.join(', '),
+        'onboarding_done': true,
+      });
+
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/scan');
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _error = _prettyError(e));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final canContinue = _selectedAge != null && !_saving;
+
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
@@ -129,35 +178,53 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         );
                       }).toList(),
                     ),
+
+                    if (_error != null) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        _error!,
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+
                     const SizedBox(height: 28),
                     SizedBox(
                       width: double.infinity,
                       height: 52,
                       child: ElevatedButton(
-                        onPressed: (_selectedAge == null)
-                            ? null
-                            : () {
-                                Navigator.pushReplacementNamed(context, '/scan');
-                              },
+                        onPressed: canContinue ? _saveAndContinue : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _selectedAge == null
-                              ? const Color(0xFFE5E5E5)
-                              : const Color(0xFF7ADBCF),
-                          foregroundColor: _selectedAge == null
-                              ? const Color(0xFF9A9A9A)
-                              : const Color(0xFF1B1B1B),
+                          backgroundColor: canContinue
+                              ? const Color(0xFF7ADBCF)
+                              : const Color(0xFFE5E5E5),
+                          foregroundColor: canContinue
+                              ? const Color(0xFF1B1B1B)
+                              : const Color(0xFF9A9A9A),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
-                          'Get Started',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        child: _saving
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Color(0xFF1B1B1B),
+                                ),
+                              )
+                            : const Text(
+                                'Get Started',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -229,4 +296,3 @@ class _AgeOptionCard extends StatelessWidget {
     );
   }
 }
-
