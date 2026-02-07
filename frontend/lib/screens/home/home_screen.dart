@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
-
-// Import your existing screens
 import '../camera/scan_screen.dart';
-//import '../events/events_screen.dart';
-//import '../nearby/nearby_screen.dart';
-//import '../history/wrapped_screen.dart';
-//import '../chatbot/chatbot_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,15 +9,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+  int _currentIndex = 2; // mở app vào tab Scan cho tiện (muốn 0 thì đổi lại)
 
-  // Pages for bottom navigation (5 tabs)
+  static const _placeholderStyle = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+  );
+
+  // ✅ Must match 5 destinations
   final List<Widget> _pages = const [
-   // WrappedScreen(),   // Home / History / Stats
-   // EventsScreen(),    // Calendar / Events
-    ScanScreen(),      // Camera
-   // NearbyScreen(),    // Search / Nearby
-    //ChatbotScreen(),   // Profile (placeholder for now)
+    _PlaceholderPage(title: 'Home (Wrapped/History)'),
+    _PlaceholderPage(title: 'Calendar (Events)'),
+    ScanScreen(),
+    _PlaceholderPage(title: 'Search (Nearby)'),
+    _PlaceholderPage(title: 'Profile (Chatbot)'),
   ];
 
   @override
@@ -33,39 +32,48 @@ class _HomeScreenState extends State<HomeScreen> {
 
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
-
         onDestinationSelected: (int index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          setState(() => _currentIndex = index);
         },
-
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home),
             label: 'Home',
           ),
-
           NavigationDestination(
             icon: Icon(Icons.calendar_month),
             label: 'Calendar',
           ),
-
           NavigationDestination(
             icon: Icon(Icons.camera_alt),
             label: 'Scan',
           ),
-
           NavigationDestination(
             icon: Icon(Icons.search),
             label: 'Search',
           ),
-
           NavigationDestination(
             icon: Icon(Icons.person),
             label: 'Profile',
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PlaceholderPage extends StatelessWidget {
+  const _PlaceholderPage({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        textAlign: TextAlign.center,
       ),
     );
   }

@@ -1,9 +1,7 @@
 name: frontend
 description: "A new Flutter project."
 
-# Prevent accidental publishing
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
@@ -13,6 +11,11 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Supabase + env
+  supabase_flutter: ^2.6.0
+  flutter_dotenv: ^5.1.0
+
+  # existing
   cupertino_icons: ^1.0.8
   http: ^1.2.0
   image_picker: ^1.0.7
@@ -23,13 +26,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^4.0.0
 
 flutter:
   uses-material-design: true
 
-
+  # load frontend/.env
+  assets:
+    - .env
 
   # Custom fonts
   fonts:
@@ -37,7 +41,6 @@ flutter:
       fonts:
         - asset: assets/TiltWarp-Bold.ttf
           weight: 700
-
     - family: "Comfortaa"
       fonts:
         - asset: assets/Comfortaa-Regular.ttf

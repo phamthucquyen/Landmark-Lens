@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignupScreenState extends State<SignupScreen> {
+  final _username = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _confirm = TextEditingController();
 
   bool _loading = false;
   String? _error;
@@ -19,8 +21,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    _username.dispose();
     _email.dispose();
     _password.dispose();
+    _confirm.dispose();
     super.dispose();
   }
 
@@ -29,28 +33,16 @@ class _LoginScreenState extends State<LoginScreen> {
     return e.toString();
   }
 
-  Future<bool> _isOnboardingDone(String userId) async {
-    // Prefer a dedicated flag if you created it.
-    // Falls back to "age_group exists" so it works even without schema changes.
-    final profile = await _sb
-        .from('profiles')
-        .select('onboarding_done, age_group')
-        .eq('id', userId)
-        .maybeSingle();
-
-    if (profile == null) return false;
-
-    final doneFlag = profile['onboarding_done'];
-    if (doneFlag == true) return true;
-
-    final ageGroup = profile['age_group'];
-    return ageGroup != null && (ageGroup as String).trim().isNotEmpty;
-  }
-
-  Future<void> _onLogin() async {
+  Future<void> _onSignup() async {
+    final username = _username.text.trim();
     final email = _email.text.trim();
     final password = _password.text;
+    final confirm = _confirm.text;
 
+    if (username.isEmpty) {
+      setState(() => _error = 'Please enter a username.');
+      return;
+    }
     if (!email.contains('@')) {
       setState(() => _error = 'Please enter a valid email.');
       return;
@@ -59,48 +51,12 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _error = 'Please enter your password.');
       return;
     }
-
-    setState(() {
-      _error = null;
-      _loading = true;
-    });
-
-    try {
-      final res = await _sb.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-
-      if (!mounted) return;
-
-      // If confirmations are enabled and something went wrong, be explicit.
-      final user = _sb.auth.currentUser;
-      if (res.session == null || user == null) {
-        setState(() {
-          _error =
-              'Login returned no session. If you just signed up, confirm your email first, then log in again.';
-        });
-        return;
-      }
-
-      // ✅ Decide where to go: skip onboarding if already completed
-      final done = await _isOnboardingDone(user.id);
-      if (!mounted) return;
-
-      Navigator.pushReplacementNamed(context, '/home_screen');
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _error = _prettyError(e));
-    } finally {
-      if (mounted) setState(() => _loading = false);
+    if (password.length < 6) {
+      setState(() => _error = 'Password must be at least 6 characters.');
+      return;
     }
-  }
-
-  Future<void> _onForgotPassword() async {
-    final email = _email.text.trim();
-
-    if (!email.contains('@')) {
-      setState(() => _error = 'Enter your email first to reset password.');
+    if (password != confirm) {
+      setState(() => _error = 'Passwords do not match.');
       return;
     }
 
@@ -110,29 +66,42 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await _sb.auth.resetPasswordForEmail(email);
+      final res = await _sb.auth.signUp(
+        email: email,
+        password: password,
+        data: {
+          'username': username, // stored in user_metadata
+        },
+      );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password reset email sent.'),
-        ),
-      );
+
+      // If email confirmation is ON, session will often be null
+      if (res.session == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Check your email to confirm your account.'),
+          ),
+        );
+        Navigator.pop(context); // back to login
+      } else {
+        // Email confirm OFF -> signed in immediately
+        Navigator.pushReplacementNamed(context, '/onboarding');
+      }
     } catch (e) {
-      if (!mounted) return;
       setState(() => _error = _prettyError(e));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  // ===== Figma specs =====
+  // ===== Same specs as Login =====
   static const double _frameWidth = 393;
 
   static const Color _titleColor = Color(0xFF363E44);
   static const Color _fieldBg = Color(0xFFEDFFFC);
   static const Color _buttonBg = Color(0xFFF05B55);
-  static const Color _word = Color(0xFF9EE3D8);
+
 
   static const TextStyle _titleStyle = TextStyle(
     color: _titleColor,
@@ -174,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
     height: 1.33,
   );
 
-  static const TextStyle _createAccountComfortaa = TextStyle(
+  static const TextStyle _linkComfortaa = TextStyle(
     color: _buttonBg,
     fontFamily: 'Comfortaa',
     fontSize: 16,
@@ -222,9 +191,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _primaryButton() {
     return SizedBox(
       width: 346,
-      height: 48,
+      height: 56,
       child: ElevatedButton(
-        onPressed: _loading ? null : _onLogin,
+        onPressed: _loading ? null : _onSignup,
         style: ElevatedButton.styleFrom(
           elevation: 0,
           backgroundColor: _buttonBg,
@@ -242,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Colors.white,
                 ),
               )
-            : const Text('Log in', style: _buttonTextComfortaa),
+            : const Text('Sign up', style: _buttonTextComfortaa),
       ),
     );
   }
@@ -253,7 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Expanded(child: Divider(thickness: 1)),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Text('Or Sign in with', style: _dividerComfortaa),
+          child: Text('Or Sign up with', style: _dividerComfortaa),
         ),
         Expanded(child: Divider(thickness: 1)),
       ],
@@ -265,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
       width: 88,
       height: 56,
       child: OutlinedButton(
-        onPressed: null,
+        onPressed: null, // OAuth chưa làm thì disable
         style: OutlinedButton.styleFrom(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           side: const BorderSide(color: _titleColor, width: 1),
@@ -290,50 +259,36 @@ class _LoginScreenState extends State<LoginScreen> {
                     constraints: BoxConstraints(minHeight: constraints.maxHeight),
                     child: IntrinsicHeight(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 18,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 54),
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              alignment: Alignment.centerLeft,
+                              onPressed: () => Navigator.maybePop(context),
+                              icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: _titleColor),
+                            ),
+                            const SizedBox(height: 18),
                             const SizedBox(
                               width: 344,
                               child: Text(
-                                "Welcome back!\nGlad to see you, again",
+                                "Welcome to\nLandmark Lens!",
                                 style: _titleStyle,
                               ),
                             ),
                             const SizedBox(height: 28),
-                            _authTextField(
-                              controller: _email,
-                              hint: "Enter your email",
-                            ),
+
+                            _authTextField(controller: _username, hint: "Username"),
                             const SizedBox(height: 16),
-                            _authTextField(
-                              controller: _password,
-                              hint: "Enter your password",
-                              obscure: true,
-                            ),
-                            const SizedBox(height: 4),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: _loading ? null : _onForgotPassword,
-                                style: TextButton.styleFrom(
-                                  padding: EdgeInsets.zero,
-                                  minimumSize: const Size(0, 0),
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                ),
-                                child: const Text(
-                                  'Forgot Password?',
-                                  style: _body16Comfortaa,
-                                ),
-                              ),
-                            ),
+                            _authTextField(controller: _email, hint: "Email"),
+                            const SizedBox(height: 16),
+                            _authTextField(controller: _password, hint: "Password", obscure: true),
+                            const SizedBox(height: 16),
+                            _authTextField(controller: _confirm, hint: "Confirm password", obscure: true),
+
                             if (_error != null) ...[
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 10),
                               Text(
                                 _error!,
                                 style: const TextStyle(
@@ -345,11 +300,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ] else
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 10),
+
+                            const SizedBox(height: 10),
                             _primaryButton(),
-                            const SizedBox(height: 64),
+
+                            const SizedBox(height: 40),
                             _dividerRow(),
                             const SizedBox(height: 18),
+
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -378,21 +337,24 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 const SizedBox(width: 16),
                                 _socialBox(
-                                  child: const Icon(Icons.apple,
-                                      size: 26, color: _titleColor),
+                                  child: const Icon(Icons.apple, size: 26, color: _titleColor),
                                 ),
                               ],
                             ),
+
                             const Spacer(),
+
                             Center(
-                              child: TextButton(
-                                onPressed: _loading
-                                    ? null
-                                    : () => Navigator.pushNamed(context, '/signup'),
-                                child: const Text(
-                                  'Create an account',
-                                  style: _createAccountComfortaa,
-                                ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text('Already have an account? ', style: _body16Comfortaa),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                                    child: const Text('Sign In', style: _linkComfortaa),
+                                  ),
+                                ],
                               ),
                             ),
                             const SizedBox(height: 6),

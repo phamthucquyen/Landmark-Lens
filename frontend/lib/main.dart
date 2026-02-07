@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 // import 'dart:io';
 // import 'package:image_picker/image_picker.dart';
 import 'screens/camera/scan_screen.dart';
@@ -6,8 +7,27 @@ import 'screens/camera/scan_screen.dart';
 // import 'services/landmark_service.dart';
 import 'screens/login/login.dart';
 import 'screens/onboarding/onboarding_screen.dart';
+=======
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+import 'screens/login/login.dart';
+import 'screens/login/signup.dart';
+import 'screens/onboarding/onboarding_screen.dart';
+import 'screens/camera/scan_screen.dart';
+import 'screens/home/home_screen.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(fileName: ".env");
+
+  await Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_PUBLISHABLE_KEY']!,
+  );
+>>>>>>> a606cac (update on evelyn)
+
   runApp(const LandmarkApp());
 }
 
@@ -23,10 +43,43 @@ class LandmarkApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
-      home: const LoginScreen(),
+      home: const AuthGate(),
       routes: {
+        '/login': (context) => const LoginScreen(),
+        '/signup': (context) => const SignupScreen(),
         '/onboarding': (context) => const OnboardingScreen(),
         '/scan': (context) => const ScanScreen(),
+        '/home_screen': (context) => HomeScreen(),
+
+      },
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final supabase = Supabase.instance.client;
+
+    return StreamBuilder<AuthState>(
+      stream: supabase.auth.onAuthStateChange,
+      builder: (context, snapshot) {
+        // Loading state (lúc app mới mở, tránh trắng)
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final session = supabase.auth.currentSession;
+
+        // Chưa login
+        if (session == null) return const LoginScreen();
+
+        // Đã login
+        return HomeScreen();
       },
     );
   }
