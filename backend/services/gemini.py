@@ -34,6 +34,7 @@ def gemini_identify(image_bytes: bytes, mime_type: str, req: IdentifyRequest) ->
     - discovery_facts: 1–2 general surprising facts (always try to provide).
     - suggested_questions: 3 short follow-up questions the user can tap (age + interests aware).
     - location: city/country if known, otherwise a best guess or "Unknown".
+    - landmark_lat / landmark_lng: approximate coordinates of the landmark if known, otherwise null.
 
     Return ONLY JSON. No markdown. No extra keys.
     """.strip()
