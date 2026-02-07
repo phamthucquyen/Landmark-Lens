@@ -14,12 +14,12 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   // 5 pages must match 5 tabs
-  final List<Widget> _pages = const [
-    HomeDashboard(), // Home UI
+  final List<Widget> _pages = const [   
+    _Placeholder(title: 'Wrapp'), // Home UI
     _Placeholder(title: 'Calendar'), // TODO: replace later
     ScanScreen(), // Scan (camera)
     _Placeholder(title: 'Search'), // TODO: replace later
-    _Placeholder(title: 'Profile'), // TODO: replace later
+    HomeDashboard(), // TODO: replace later
   ];
 
   @override
@@ -30,12 +30,12 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedIndex: _currentIndex,
         onDestinationSelected: (i) => setState(() => _currentIndex = i),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+          NavigationDestination(icon: Icon(Icons.home)),
           NavigationDestination(
-              icon: Icon(Icons.calendar_month), label: 'Calendar'),
-          NavigationDestination(icon: Icon(Icons.camera_alt), label: 'Scan'),
-          NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
+              icon: Icon(Icons.calendar_month)),
+          NavigationDestination(icon: Icon(Icons.camera_alt)),
+          NavigationDestination(icon: Icon(Icons.search)),
+          NavigationDestination(icon: Icon(Icons.person)),
         ],
       ),
     );
