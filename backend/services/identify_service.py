@@ -2,9 +2,11 @@ from typing import Optional
 import re
 from datetime import datetime, timezone
 
-from schemas.identify import IdentifyResponse, IdentifyRequest, AgeBracket
+from schemas.identify import IdentifyResponse, IdentifyRequest, AgeBracket, NearbySuggestions
 from services.cache import get as cache_get, set as cache_set
 from services.gemini import gemini_identify
+from services.places_service import get_nearby_landmarks, get_nearby_food
+from services.events_service import get_nearby_events
 from db import queries
 
 CONFIRM_THRESHOLD = 0.65
@@ -52,6 +54,15 @@ def safe_lists(res: IdentifyResponse) -> IdentifyResponse:
     # candidates
     res.candidates = res.candidates or []
     res.candidates = res.candidates[:3]
+
+    if res.nearby:
+        res.nearby.landmarks = res.nearby.landmarks or []
+        res.nearby.food = res.nearby.food or []
+        res.nearby.landmarks = res.nearby.landmarks[:6]
+        res.nearby.food = res.nearby.food[:6]
+
+    res.events = res.events or []
+    res.events = res.events[:6]
 
     return res
 
@@ -108,7 +119,8 @@ async def identify_landmark(
 
     # make cache key
     sample = image_bytes[:64]
-    cache_key = f"identify:{final_age}:{','.join(final_interests)}:{len(image_bytes)}:{sample.hex()}"
+    lat_lng_key = f"{round(lat,4)},{round(lng,4)}" if lat is not None and lng is not None else "none"
+    cache_key = f"identify:{final_age}:{','.join(final_interests)}:{len(image_bytes)}:{sample.hex()}:{lat_lng_key}"
 
     cached = cache_get(cache_key)
     if cached:
@@ -117,6 +129,14 @@ async def identify_landmark(
     # call Gemini API
     req = IdentifyRequest(user_id=user_id, age_bracket=final_age, interests=final_interests)
     res = gemini_identify(image_bytes=image_bytes, mime_type=mime_type, req=req)
+
+    res.nearby = NearbySuggestions()
+    res.events = []
+
+    if lat is not None and lng is not None:
+        res.nearby.landmarks = await get_nearby_landmarks(lat=lat, lng=lng)
+        res.nearby.food = await get_nearby_food(lat=lat, lng=lng)
+        res.events = await get_nearby_events(lat=lat, lng=lng)
 
     # post-process safety + confidence/confirmation logic
     res = safe_lists(res)
