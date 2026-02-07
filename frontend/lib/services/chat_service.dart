@@ -36,7 +36,7 @@ class ChatService {
     String? userId,
   }) async {
     try {
-      final uri = Uri.parse('${ApiConstants.baseUrl}/chat/');
+      final uri = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.chatEndpoint}');
       
       final response = await http.post(
         uri,

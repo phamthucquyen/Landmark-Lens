@@ -10,10 +10,6 @@ import 'screens/landmark/result_screen.dart';
 import 'services/landmark_service.dart';
 import 'screens/home/home_screen.dart';
 
-void main() {
-  runApp(const MyApp());
-import 'screens/home/home_screen.dart';
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
