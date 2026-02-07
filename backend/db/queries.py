@@ -14,7 +14,7 @@ def save_scan(
     """Save a landmark scan to the database"""
     try:
         supabase = get_supabase()
-        
+
         data = {
             "user_id": user_id,
             "landmark_name": landmark_name,
@@ -24,7 +24,7 @@ def save_scan(
             "tags": tags,
             "timestamp": timestamp.isoformat(),
         }
-        
+
         result = supabase.table("scans").insert(data).execute()
         if result.data and isinstance(result.data, list) and len(result.data) > 0:
             item = result.data[0]
@@ -33,6 +33,26 @@ def save_scan(
     except Exception as e:
         print(f"ERROR saving scan: {e}")
     return None
+
+
+def get_scans_for_user(user_id: str, limit: int = 50) -> list[dict[str, Any]]:
+    """Fetch newest scans for a user (for Wrapped/Journey)."""
+    try:
+        supabase = get_supabase()
+        res = (
+            supabase.table("scans")
+            .select("id,user_id,landmark_name,tags,timestamp")
+            .eq("user_id", user_id)
+            .order("timestamp", desc=True)
+            .limit(limit)
+            .execute()
+        )
+
+        if res.data and isinstance(res.data, list):
+            return [x for x in res.data if isinstance(x, dict)]
+    except Exception as e:
+        print(f"ERROR getting scans: {e}")
+    return []
 
 
 def get_profile(user_id: str) -> Optional[dict[str, Any]]:
@@ -50,14 +70,5 @@ def get_profile(user_id: str) -> Optional[dict[str, Any]]:
             "interests": ["animals", "nature", "science"]
         }
     }
-    
+
     return mock_profiles.get(user_id)
-    
-    # get real profile from DB
-    # supabase = get_supabase()
-    # result = supabase.table("profiles").select("*").eq("user_id", user_id).execute()
-    # if result.data and isinstance(result.data, list) and len(result.data) > 0:
-    #     item = result.data[0]
-    #     if isinstance(item, dict):
-    #         return item
-    # return None

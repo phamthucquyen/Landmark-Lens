@@ -6,6 +6,12 @@ import 'screens/login/login.dart';
 import 'screens/login/signup.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/camera/scan_screen.dart';
+import 'screens/landmark/result_screen.dart';
+import 'services/landmark_service.dart';
+import 'screens/home/home_screen.dart';
+
+void main() {
+  runApp(const MyApp());
 import 'screens/home/home_screen.dart';
 
 Future<void> main() async {

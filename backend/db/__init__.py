@@ -1,3 +1,3 @@
-from db import queries
+from . import identify, wrapped
 
-__all__ = ["queries"]
+__all__ = ["identify", "wrapped"]

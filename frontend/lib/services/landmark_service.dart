@@ -13,7 +13,8 @@ class LandmarkService {
     double? lng,
   }) async {
     try {
-      var uri = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.identifyEndpoint}');
+      var uri =
+          Uri.parse('${ApiConstants.baseUrl}${ApiConstants.identifyEndpoint}');
       var request = http.MultipartRequest('POST', uri);
 
       // Add image file
@@ -34,7 +35,8 @@ class LandmarkService {
       if (response.statusCode == 200) {
         return json.decode(responseBody);
       } else {
-        throw Exception('Failed to identify landmark: ${response.statusCode}\n$responseBody');
+        throw Exception(
+            'Failed to identify landmark: ${response.statusCode}\n$responseBody');
       }
     } catch (e) {
       throw Exception('Error identifying landmark: $e');
