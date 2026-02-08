@@ -37,6 +37,10 @@ flutter:
     # logo splash
     - assets/logo.png
 
+    # camera icons
+    - assets/flip_camera_icon.png
+    - assets/add_photo_icon.png
+
     # env
     - .env
 

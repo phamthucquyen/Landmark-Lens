@@ -41,7 +41,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 48),
                   // Profile Header
                   Center(
                     child: Column(
