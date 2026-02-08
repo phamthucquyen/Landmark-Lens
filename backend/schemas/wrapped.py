@@ -6,7 +6,9 @@ class WrappedScanItem(BaseModel):
     tags: List[str] = Field(default_factory=list)
     timestamp: Optional[str] = None
 
+
 class WrappedResponse(BaseModel):
     total_scans: int
     unique_landmarks: int
+    top_city: Optional[str] = None         
     items: List[WrappedScanItem] = Field(default_factory=list)

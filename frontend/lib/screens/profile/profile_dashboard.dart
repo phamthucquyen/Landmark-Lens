@@ -10,7 +10,7 @@ class ProfileDashboard extends StatefulWidget {
 }
 
 class _ProfileDashboardState extends State<ProfileDashboard> {
-  final UserService _userService = UserService();
+  final UserService _userService = UserService(); // keep for later use
   final supabase = Supabase.instance.client;
 
   // ===== Match Login typography/colors =====
@@ -56,6 +56,22 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
     height: 1.2,
   );
 
+  static const TextStyle _tileTitleComfortaa = TextStyle(
+    fontFamily: 'Comfortaa',
+    fontSize: 14.5,
+    fontWeight: FontWeight.w800,
+    color: _titleColor,
+    height: 1.2,
+  );
+
+  static const TextStyle _tileSubtitleComfortaa = TextStyle(
+    fontFamily: 'Comfortaa',
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+    color: _muted,
+    height: 1.2,
+  );
+
   static const TextStyle _snackComfortaa = TextStyle(
     fontFamily: 'Comfortaa',
     fontSize: 14,
@@ -67,12 +83,12 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
   Widget build(BuildContext context) {
     final user = supabase.auth.currentUser;
 
-    // Mock values for now (replace with Supabase later)
+    // TODO: replace with Supabase later
     const int placesVisited = 12;
     const int scansThisWeek = 3;
     const int streakDays = 2;
 
-    final recent = const [
+    const recent = [
       _RecentScan(title: 'Fushimi Inari', subtitle: 'Kyoto • Yesterday'),
       _RecentScan(title: 'Kinkaku-ji', subtitle: 'Kyoto • 3 days ago'),
       _RecentScan(title: 'Tokyo Tower', subtitle: 'Tokyo • Last week'),
@@ -132,23 +148,19 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
             ),
           ),
 
-                  const SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Stats row
           Row(
-            children: [
-              _StatCard(
-                icon: Icons.place,
-                label: 'Places',
-                value: '$placesVisited',
-              ),
-              const SizedBox(width: 12),
+            children: const [
+              _StatCard(icon: Icons.place, label: 'Places', value: '$placesVisited'),
+              SizedBox(width: 12),
               _StatCard(
                 icon: Icons.calendar_month,
                 label: 'This week',
                 value: '$scansThisWeek',
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               _StatCard(
                 icon: Icons.local_fire_department,
                 label: 'Streak',
@@ -184,95 +196,21 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
           ...recent.map((r) => _RecentScanTile(scan: r)),
           const SizedBox(height: 24),
 
-                  // Account Actions
-                  const Text(
-                    'Account',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 8),
-          // Account Actions
+          // Account
           const Text('Account', style: _sectionTilt),
           const SizedBox(height: 8),
 
-                  Card(
-                    child: Column(
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.edit),
-                          title: const Text('Edit Profile'),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Edit profile coming soon')),
-                            );
-                          },
-                        ),
-                        const Divider(height: 1),
-                        ListTile(
-                          leading: const Icon(Icons.notifications, color: Colors.amber),
-                          title: const Text('Notifications'),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Notifications coming soon')),
-                            );
-                          },
-                        ),
-                        const Divider(height: 1),
-                        ListTile(
-                          leading: const Icon(Icons.privacy_tip),
-                          title: const Text('Privacy'),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Privacy settings coming soon')),
-                            );
-                          },
-                        ),
-                        const Divider(height: 1),
-                        ListTile(
-                          leading: const Icon(Icons.logout, color: Colors.red),
-                          title: const Text('Sign Out',
-                              style: TextStyle(color: Colors.red)),
-                          onTap: () async {
-                            await supabase.auth.signOut();
-                            if (context.mounted) {
-                              Navigator.of(context)
-                                  .pushReplacementNamed('/login');
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-        },
           Card(
             child: Column(
               children: [
                 ListTile(
                   leading: const Icon(Icons.edit, color: _titleColor),
-                  title: const Text(
-                    'Edit Profile',
-                    style: TextStyle(
-                      fontFamily: 'Comfortaa',
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w700,
-                      color: _titleColor,
-                    ),
-                  ),
+                  title: const Text('Edit Profile', style: _tileTitleComfortaa),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content:
-                            Text('Edit profile coming soon', style: _snackComfortaa),
+                        content: Text('Edit profile coming soon', style: _snackComfortaa),
                       ),
                     );
                   },
@@ -280,21 +218,15 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.notifications, color: _titleColor),
-                  title: const Text(
-                    'Notifications',
-                    style: TextStyle(
-                      fontFamily: 'Comfortaa',
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w700,
-                      color: _titleColor,
-                    ),
-                  ),
+                  title: const Text('Notifications', style: _tileTitleComfortaa),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content:
-                            Text('Notifications coming soon', style: _snackComfortaa),
+                        content: Text(
+                          'Notifications coming soon',
+                          style: _snackComfortaa,
+                        ),
                       ),
                     );
                   },
@@ -302,15 +234,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.privacy_tip, color: _titleColor),
-                  title: const Text(
-                    'Privacy',
-                    style: TextStyle(
-                      fontFamily: 'Comfortaa',
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w700,
-                      color: _titleColor,
-                    ),
-                  ),
+                  title: const Text('Privacy', style: _tileTitleComfortaa),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -333,13 +257,13 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                       fontSize: 14.5,
                       fontWeight: FontWeight.w800,
                       color: Colors.red,
+                      height: 1.2,
                     ),
                   ),
                   onTap: () async {
                     await supabase.auth.signOut();
-                    if (context.mounted) {
-                      Navigator.of(context).pushReplacementNamed('/login');
-                    }
+                    if (!mounted) return;
+                    Navigator.of(context).pushReplacementNamed('/login');
                   },
                 ),
               ],
@@ -353,13 +277,11 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
 
 class _StatCard extends StatelessWidget {
   final IconData icon;
-  final Color? iconColor;
   final String label;
   final String value;
 
   const _StatCard({
     required this.icon,
-    this.iconColor,
     required this.label,
     required this.value,
   });
@@ -376,7 +298,6 @@ class _StatCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: iconColor),
               Icon(icon, color: _titleColor),
               const SizedBox(height: 10),
               Text(
@@ -418,20 +339,19 @@ class _RecentScanTile extends StatelessWidget {
   final _RecentScan scan;
   const _RecentScanTile({required this.scan});
 
-  static const Color _titleColor = Color(0xFF363E44);
-  static const Color _muted = Color(0xFF9CA3AF);
   static const TextStyle _title = TextStyle(
     fontFamily: 'Comfortaa',
     fontSize: 14.5,
     fontWeight: FontWeight.w800,
-    color: _titleColor,
+    color: Color(0xFF363E44),
     height: 1.2,
   );
+
   static const TextStyle _subtitle = TextStyle(
     fontFamily: 'Comfortaa',
     fontSize: 13,
     fontWeight: FontWeight.w600,
-    color: _muted,
+    color: Color(0xFF9CA3AF),
     height: 1.2,
   );
 

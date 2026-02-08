@@ -47,6 +47,7 @@ def save_scan(
     tags: list[str],
     timestamp: datetime,
     image_url: Optional[str] = None,
+    city: Optional[str] = None,
 ) -> Optional[dict[str, Any]]:
     """Save a landmark scan to the database"""
     try:
@@ -61,6 +62,7 @@ def save_scan(
             "tags": tags,
             "timestamp": timestamp.isoformat(),
             "image_url": image_url,
+            "city": city, 
         }
 
         result = supabase.table("scans").insert(data).execute()
@@ -224,3 +226,25 @@ def get_profile(user_id: str) -> Optional[dict[str, Any]]:
     except Exception as e:
         print(f"ERROR getting profile: {e}")
     return None
+
+def get_top_city_for_user(user_id: str) -> Optional[str]:
+    try:
+        supabase = get_supabase()
+        res = (
+            supabase.table("scans")
+            .select("city")
+            .eq("user_id", user_id)
+            .not_.is_("city", "null")
+            .execute()
+        )
+
+        rows = res.data if isinstance(res.data, list) else []
+        cities = [r["city"] for r in rows if r.get("city")]
+        if not cities:
+            return None
+
+        from collections import Counter
+        return Counter(cities).most_common(1)[0][0]
+    except Exception as e:
+        print(f"ERROR get_top_city_for_user: {e}")
+        return None

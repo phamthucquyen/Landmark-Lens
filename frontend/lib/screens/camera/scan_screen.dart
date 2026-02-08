@@ -22,9 +22,6 @@ class _ScanScreenState extends State<ScanScreen> {
 
   bool _loading = false;
 
-  // TODO: replace later with real auth user id
-  final String _userId = 'test-user-123';
-
   // ===== Match Login typography/colors =====
   static const Color _titleColor = Color(0xFF363E44);
   static const Color _buttonBg = Color(0xFFF05B55);
@@ -81,16 +78,29 @@ class _ScanScreenState extends State<ScanScreen> {
       setState(() => _loading = true);
 
       final file = File(image.path);
-      
-      // Get authenticated user ID and preferences
-      final userId = _userService.getUserId();
+
+      // ✅ Always use Supabase auth user id
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        throw Exception('Please log in first.');
+      }
+      final userId = user.id;
+
+      // Personalization preferences from profiles
       final prefs = await _userService.getUserPreferences();
 
+      // Location (optional)
+      final position = await _getPosition();
+
+      // Call backend/service
       final result = await _service.identifyLandmark(
         imageFile: file,
         userId: userId,
         ageBracket: prefs['age_group'],
         interests: prefs['interests'],
+        // If your LandmarkService supports lat/lng, keep these:
+        lat: position?.latitude,
+        lng: position?.longitude,
       );
 
       if (!mounted) return;
@@ -109,9 +119,7 @@ class _ScanScreenState extends State<ScanScreen> {
       if (!mounted) return;
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$e', style: _snackComfortaa),
-        ),
+        SnackBar(content: Text('$e', style: _snackComfortaa)),
       );
     }
   }
@@ -138,10 +146,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     child: ElevatedButton.icon(
                       onPressed: () => _scan(ImageSource.camera),
                       icon: const Icon(Icons.camera_alt, color: Colors.white),
-                      label: const Text(
-                        'Take Photo',
-                        style: _buttonTextComfortaa,
-                      ),
+                      label: const Text('Take Photo', style: _buttonTextComfortaa),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _buttonBg,
                         foregroundColor: Colors.white,
