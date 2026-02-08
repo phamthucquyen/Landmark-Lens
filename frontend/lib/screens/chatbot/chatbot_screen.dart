@@ -26,10 +26,74 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   List<String> _suggestedQuestions = [];
   bool _isLoading = false;
 
+  // ===== Match Login typography/colors =====
+  static const Color _titleColor = Color(0xFF363E44);
+  static const Color _muted = Color(0xFF9CA3AF);
+
+  static const TextStyle _appBarTitleTilt = TextStyle(
+    fontFamily: 'Tilt Warp',
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+    color: Colors.black,
+    height: 1.2,
+  );
+
+  static const TextStyle _appBarSubtitleComfortaa = TextStyle(
+    fontFamily: 'Comfortaa',
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+    color: Colors.black54,
+    height: 1.2,
+  );
+
+  static const TextStyle _emptyStateComfortaa = TextStyle(
+    fontFamily: 'Comfortaa',
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: _muted,
+    height: 1.33,
+  );
+
+  static const TextStyle _bubbleTextComfortaa = TextStyle(
+    fontFamily: 'Comfortaa',
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    height: 1.4,
+  );
+
+  static const TextStyle _suggestLabelComfortaa = TextStyle(
+    fontFamily: 'Comfortaa',
+    fontSize: 13,
+    fontWeight: FontWeight.w700,
+    height: 1.2,
+  );
+
+  static const TextStyle _suggestChipComfortaa = TextStyle(
+    fontFamily: 'Comfortaa',
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+    height: 1.2,
+  );
+
+  static const TextStyle _inputTextComfortaa = TextStyle(
+    fontFamily: 'Comfortaa',
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    height: 1.3,
+    color: _titleColor,
+  );
+
+  static const TextStyle _hintTextComfortaa = TextStyle(
+    fontFamily: 'Comfortaa',
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    height: 1.3,
+    color: Colors.grey,
+  );
+
   @override
   void initState() {
     super.initState();
-    // If there's an initial question, send it automatically
     if (widget.initialQuestion != null && widget.initialQuestion!.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _sendMessage(widget.initialQuestion!);
@@ -43,17 +107,15 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
     final userMessage = text.trim();
     _messageController.clear();
 
-    // Add user message to chat
     setState(() {
       _messages.add(ChatMessage(role: 'user', content: userMessage));
       _isLoading = true;
-      _suggestedQuestions = []; // Clear previous suggestions
+      _suggestedQuestions = [];
     });
 
     _scrollToBottom();
 
     try {
-      // Get AI response with suggested questions
       final chatResponse = await _chatService.sendMessage(
         landmarkName: widget.landmarkName,
         landmarkInfo: widget.landmarkDescription,
@@ -61,9 +123,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         userMessage: userMessage,
       );
 
-      // Add AI response to chat
       setState(() {
-        _messages.add(ChatMessage(role: 'assistant', content: chatResponse.response));
+        _messages.add(
+          ChatMessage(role: 'assistant', content: chatResponse.response),
+        );
         _suggestedQuestions = chatResponse.suggestedQuestions;
         _isLoading = false;
       });
@@ -71,10 +134,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
       _scrollToBottom();
     } catch (e) {
       setState(() {
-        _messages.add(ChatMessage(
-          role: 'assistant',
-          content: 'Sorry, I encountered an error. Please try again.',
-        ));
+        _messages.add(
+          ChatMessage(
+            role: 'assistant',
+            content: 'Sorry, I encountered an error. Please try again.',
+          ),
+        );
         _suggestedQuestions = [];
         _isLoading = false;
       });
@@ -108,29 +173,13 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Chat',
-              style: TextStyle(
-                fontFamily: 'TiltWrap',
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-            ),
-            Text(
-              widget.landmarkName,
-              style: const TextStyle(
-                fontFamily: 'Arimo',
-                fontSize: 13,
-                color: Colors.black54,
-              ),
-            ),
+            const Text('Chat', style: _appBarTitleTilt),
+            Text(widget.landmarkName, style: _appBarSubtitleComfortaa),
           ],
         ),
       ),
       body: Column(
         children: [
-          // Chat messages
           Expanded(
             child: _messages.isEmpty
                 ? Center(
@@ -146,9 +195,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                         Text(
                           'Ask me anything about\n${widget.landmarkName}',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: 'Arimo',
-                            fontSize: 16,
+                          style: _emptyStateComfortaa.copyWith(
                             color: Colors.grey.shade500,
                           ),
                         ),
@@ -164,7 +211,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                       final isUser = message.role == 'user';
 
                       return Align(
-                        alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                        alignment: isUser
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.symmetric(
@@ -172,7 +221,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                             vertical: 12,
                           ),
                           constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.75,
+                            maxWidth:
+                                MediaQuery.of(context).size.width * 0.75,
                           ),
                           decoration: BoxDecoration(
                             color: isUser
@@ -182,11 +232,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                           ),
                           child: Text(
                             message.content,
-                            style: TextStyle(
-                              fontFamily: 'Arimo',
-                              fontSize: 15,
+                            style: _bubbleTextComfortaa.copyWith(
                               color: isUser ? Colors.white : Colors.black87,
-                              height: 1.4,
                             ),
                           ),
                         ),
@@ -195,12 +242,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                   ),
           ),
 
-          // Loading indicator
           if (_isLoading)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(width: 16),
                   Container(
@@ -214,7 +259,9 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1F8A70)),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Color(0xFF1F8A70),
+                        ),
                       ),
                     ),
                   ),
@@ -222,7 +269,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               ),
             ),
 
-          // Suggested Questions
           if (!_isLoading && _suggestedQuestions.isNotEmpty)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -232,17 +278,12 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                 children: [
                   Text(
                     'Suggested questions:',
-                    style: TextStyle(
-                      fontFamily: 'Arimo',
-                      fontSize: 13,
+                    style: _suggestLabelComfortaa.copyWith(
                       color: Colors.grey.shade600,
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
-                    alignment: WrapAlignment.start,
-                    crossAxisAlignment: WrapCrossAlignment.start,
                     spacing: 8,
                     runSpacing: 8,
                     children: _suggestedQuestions.map((question) {
@@ -258,17 +299,15 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                             color: const Color(0xFF1F8A70).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: const Color(0xFF1F8A70).withOpacity(0.3),
+                              color:
+                                  const Color(0xFF1F8A70).withOpacity(0.3),
                               width: 1,
                             ),
                           ),
                           child: Text(
                             question,
-                            style: const TextStyle(
-                              fontFamily: 'Arimo',
-                              fontSize: 13,
-                              color: Color(0xFF1F8A70),
-                              fontWeight: FontWeight.w500,
+                            style: _suggestChipComfortaa.copyWith(
+                              color: const Color(0xFF1F8A70),
                             ),
                           ),
                         ),
@@ -279,7 +318,6 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
               ),
             ),
 
-          // Message input
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -299,11 +337,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                     controller: _messageController,
                     decoration: InputDecoration(
                       hintText: 'Ask a question...',
-                      hintStyle: const TextStyle(
-                        fontFamily: 'Arimo',
-                        fontSize: 15,
-                        color: Colors.grey,
-                      ),
+                      hintStyle: _hintTextComfortaa,
                       filled: true,
                       fillColor: Colors.grey.shade100,
                       border: OutlineInputBorder(
@@ -315,10 +349,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                         vertical: 12,
                       ),
                     ),
-                    style: const TextStyle(
-                      fontFamily: 'Arimo',
-                      fontSize: 15,
-                    ),
+                    style: _inputTextComfortaa,
                     maxLines: null,
                     textCapitalization: TextCapitalization.sentences,
                     onSubmitted: (text) => _sendMessage(text),
@@ -332,7 +363,8 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.send, color: Colors.white),
-                    onPressed: () => _sendMessage(_messageController.text),
+                    onPressed: () =>
+                        _sendMessage(_messageController.text),
                   ),
                 ),
               ],

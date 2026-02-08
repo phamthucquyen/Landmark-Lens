@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../camera/scan_screen.dart';
 import '../profile/profile_dashboard.dart';
+import '../wrap/wrap_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,18 +12,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 2; // mở app vào tab Camera
+  int _currentIndex = 2; 
 
   final List<Widget> _pages = const [
-    _PlaceholderPage(title: 'Calendar (Events)'),
+    WrapScreen(),
     _PlaceholderPage(title: 'Location (Nearby)'),
     ScanScreen(),
     _PlaceholderPage(title: 'Search'),
     ProfileDashboard(),
   ];
 
-  static const double _iconSize = 28; // 👈 phóng to icon
-
+  static const double _iconSize = 28; 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onDestinationSelected: (index) {
           setState(() => _currentIndex = index);
         },
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide, // 👈 bỏ chữ
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide, 
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.calendar_month, size: _iconSize),
