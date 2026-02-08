@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:intl/intl.dart';
 import '../../services/user_service.dart';
 
 class ProfileDashboard extends StatefulWidget {
@@ -19,19 +18,6 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
     final user = supabase.auth.currentUser;
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Profile'),
-      //   actions: [
-      //     IconButton(
-      //       icon: const Icon(Icons.settings),
-      //       onPressed: () {
-      //         ScaffoldMessenger.of(context).showSnackBar(
-      //           const SnackBar(content: Text('Settings coming soon')),
-      //         );
-      //       },
-      //     ),
-      //   ],
-      // ),
       body: FutureBuilder<Map<String, dynamic>?>(
         future: _userService.getUserProfileWithStats(),
         builder: (context, snapshot) {
@@ -52,8 +38,6 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
           return FutureBuilder<List<Map<String, dynamic>>>(
             future: _userService.getRecentScans(limit: 3),
             builder: (context, scansSnapshot) {
-              final recentScans = scansSnapshot.data ?? [];
-
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
@@ -94,6 +78,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                     children: [
                       _StatCard(
                           icon: Icons.place,
+                          iconColor: Colors.blue,
                           label: 'Places',
                           value: '$placesVisited'),
                       const SizedBox(width: 12),
@@ -104,53 +89,13 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                       const SizedBox(width: 12),
                       _StatCard(
                           icon: Icons.local_fire_department,
+                          iconColor: Colors.red,
                           label: 'Streak',
                           value: '${streakDays}'),
                     ],
                   ),
 
                   const SizedBox(height: 24),
-
-                  // // Recent Activity
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //   children: [
-                  //     const Text(
-                  //       'Recent Activity',
-                  //       style:
-                  //           TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  //     ),
-                  //     TextButton(
-                  //       onPressed: () {
-                  //         ScaffoldMessenger.of(context).showSnackBar(
-                  //           const SnackBar(
-                  //               content: Text('View full history coming soon')),
-                  //         );
-                  //       },
-                  //       child: const Text('See all'),
-                  //     ),
-                  //   ],
-                  // ),
-
-                  // const SizedBox(height: 8),
-
-                  // // Recent scans
-                  // if (recentScans.isEmpty)
-                  //   const Card(
-                  //     child: Padding(
-                  //       padding: EdgeInsets.all(24),
-                  //       child: Center(
-                  //         child: Text(
-                  //           'No scans yet. Start scanning landmarks!',
-                  //           style: TextStyle(color: Colors.grey),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   )
-                  // else
-                  //   ...recentScans.map((scan) => _RecentScanTile(scan: scan)),
-
-                  // const SizedBox(height: 24),
 
                   // Account Actions
                   const Text(
@@ -175,7 +120,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
                         ),
                         const Divider(height: 1),
                         ListTile(
-                          leading: const Icon(Icons.notifications),
+                          leading: const Icon(Icons.notifications, color: Colors.amber),
                           title: const Text('Notifications'),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () {
@@ -225,11 +170,13 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
 
 class _StatCard extends StatelessWidget {
   final IconData icon;
+  final Color? iconColor;
   final String label;
   final String value;
 
   const _StatCard({
     required this.icon,
+    this.iconColor,
     required this.label,
     required this.value,
   });
@@ -243,7 +190,7 @@ class _StatCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon),
+              Icon(icon, color: iconColor),
               const SizedBox(height: 10),
               Text(value,
                   style: const TextStyle(
@@ -257,57 +204,3 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
-
-// class _RecentScanTile extends StatelessWidget {
-//   final Map<String, dynamic> scan;
-//   const _RecentScanTile({required this.scan});
-
-//   String _formatDate(String? timestamp) {
-//     if (timestamp == null) return 'Unknown date';
-//     try {
-//       final date = DateTime.parse(timestamp);
-//       final now = DateTime.now();
-//       final difference = now.difference(date);
-
-//       if (difference.inDays == 0) {
-//         return 'Today';
-//       } else if (difference.inDays == 1) {
-//         return 'Yesterday';
-//       } else if (difference.inDays < 7) {
-//         return '${difference.inDays} days ago';
-//       } else {
-//         return DateFormat('MMM d, yyyy').format(date);
-//       }
-//     } catch (e) {
-//       return 'Unknown date';
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final landmarkName = scan['landmark_name'] ?? 'Unknown Landmark';
-//     final description = scan['description'] ?? '';
-//     final timestamp = scan['timestamp'];
-    
-//     // Create subtitle with location if available
-//     String subtitle = _formatDate(timestamp);
-//     if (scan['lat'] != null && scan['lng'] != null) {
-//       subtitle = '$subtitle • Location recorded';
-//     }
-
-//     return Card(
-//       child: ListTile(
-//         leading: const CircleAvatar(child: Icon(Icons.image)),
-//         title: Text(landmarkName,
-//             style: const TextStyle(fontWeight: FontWeight.w700)),
-//         subtitle: Text(subtitle),
-//         trailing: const Icon(Icons.chevron_right),
-//         onTap: () {
-//           ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text('Scan details coming soon')),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
