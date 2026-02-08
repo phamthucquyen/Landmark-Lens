@@ -316,7 +316,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               hint: "Enter your password",
                               obscure: true,
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 16),
                             Align(
                               alignment: Alignment.centerRight,
                               child: TextButton(
@@ -332,8 +332,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ),
+                            const SizedBox(height: 16),
                             if (_error != null) ...[
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 0),
                               Text(
                                 _error!,
                                 style: const TextStyle(
@@ -344,8 +345,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   height: 1.33,
                                 ),
                               ),
-                            ] else
-                              const SizedBox(height: 6),
+                            ],
                             _primaryButton(),
                             const SizedBox(height: 64),
                             _dividerRow(),

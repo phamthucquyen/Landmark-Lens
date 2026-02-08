@@ -194,7 +194,7 @@ def get_user_stats(user_id: str) -> dict[str, Any]:
 
 def get_profile(user_id: str) -> Optional[dict[str, Any]]:
     """Get user profile from the database"""
-    try:
+    try:    
         supabase = get_supabase()
         result = (
             supabase.table("profiles")

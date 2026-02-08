@@ -1,5 +1,5 @@
-# Landmark-Lens
-📍 Landmark Lens
+# POV
+📍 POV
 
 Landmark Lens is a mobile application that uses Google Gemini 3 to identify landmarks from photos and provide personalized, interactive travel insights. Users can scan real-world locations and instantly learn about history, culture, and fun facts through AI-powered analysis.
 
