@@ -7,6 +7,7 @@ from services.cache import get as cache_get, set as cache_set
 from services.gemini import gemini_identify
 from services.places_service import get_nearby_landmarks, get_nearby_food
 from services.events_service import get_nearby_events
+from services.geocode_service import reverse_geocode
 from db import queries
 
 CONFIRM_THRESHOLD = 0.65
@@ -106,7 +107,6 @@ async def identify_landmark(
     interests: Optional[list[str]],
     lat: Optional[float],
     lng: Optional[float],
-    city: Optional[str] = None,  # ✅ NEW
     mime_type: str = "image/jpeg",
 ) -> IdentifyResponse:
     timestamp = datetime.now(timezone.utc)
@@ -160,6 +160,13 @@ async def identify_landmark(
         save_lat = res.landmark_lat if res.landmark_lat is not None else lat
         save_lng = res.landmark_lng if res.landmark_lng is not None else lng
         if save_lat is not None and save_lng is not None:
+            # Get city from landmark location, not phone location
+            city: Optional[str] = None
+            try:
+                city = await reverse_geocode(save_lat, save_lng)
+            except Exception as geo_err:
+                print(f"Warning: reverse geocode failed for landmark: {geo_err}")
+            
             scan_record = queries.save_scan(
                 user_id=user_id,
                 landmark_name=res.landmark_name,
@@ -168,7 +175,7 @@ async def identify_landmark(
                 lng=save_lng,
                 tags=res.tags,
                 timestamp=timestamp,
-                image_url=None,  # Will be updated after storage upload
+                image_url=None,
                 city=city,
             )
             if scan_record:

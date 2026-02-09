@@ -47,14 +47,6 @@ async def identify_route(
     # parse interests list
     interests_list = interests.split(",") if interests else []
 
-    # ✅ NEW: reverse geocode -> city (best effort, don't fail request)
-    city: Optional[str] = None
-    if lat is not None and lng is not None:
-        try:
-            city = await reverse_geocode(lat, lng)
-        except Exception as geo_err:
-            print(f"Warning: reverse geocode failed: {geo_err}")
-
     try:
         res: IdentifyResponse = await identify_landmark(
             image_bytes=image_bytes,
@@ -64,7 +56,6 @@ async def identify_route(
             interests=interests_list,
             lat=lat,
             lng=lng,
-            city=city,  # ✅ NEW
         )
 
         # Upload image to storage if scan was saved
