@@ -157,22 +157,22 @@ async def identify_landmark(
     # save scan to DB and return scan_id for image upload
     scan_id = None
     if user_id:
-    save_lat = res.landmark_lat if res.landmark_lat is not None else lat
-    save_lng = res.landmark_lng if res.landmark_lng is not None else lng
-    if save_lat is not None and save_lng is not None:
-        scan_record = queries.save_scan(
-            user_id=user_id,
-            landmark_name=res.landmark_name,
-            description=res.description,
-            lat=save_lat,
-            lng=save_lng,
-            tags=res.tags,
-            timestamp=timestamp,
-            image_url=None,  # Will be updated after storage upload
-            city=city,
-        )
-        if scan_record:
-            scan_id = scan_record.get("id")
+        save_lat = res.landmark_lat if res.landmark_lat is not None else lat
+        save_lng = res.landmark_lng if res.landmark_lng is not None else lng
+        if save_lat is not None and save_lng is not None:
+            scan_record = queries.save_scan(
+                user_id=user_id,
+                landmark_name=res.landmark_name,
+                description=res.description,
+                lat=save_lat,
+                lng=save_lng,
+                tags=res.tags,
+                timestamp=timestamp,
+                image_url=None,  # Will be updated after storage upload
+                city=city,
+            )
+            if scan_record:
+                scan_id = scan_record.get("id")
 
     # Store scan_id in response for later image upload
     if scan_id:
