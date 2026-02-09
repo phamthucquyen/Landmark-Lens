@@ -73,7 +73,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       });
 
       if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/scan');
+      Navigator.pushReplacementNamed(context, '/nav_bar');
     } catch (e) {
       if (!mounted) return;
       setState(() => _error = _prettyError(e));
