@@ -23,15 +23,36 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
     color: _titleColor,
     height: 1.2,
   );
-
-  static const TextStyle _emailComfortaa = TextStyle(
+  static const TextStyle _smallComfortaa = TextStyle(
     fontFamily: 'Comfortaa',
-    fontSize: 18,
-    fontWeight: FontWeight.w700,
-    color: _titleColor,
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+    color: _muted,
     height: 1.25,
   );
 
+  static const TextStyle _buttonComfortaa = TextStyle(
+    fontFamily: 'Comfortaa',
+    fontSize: 14,
+    fontWeight: FontWeight.w700,
+    height: 1.2,
+  );
+
+  static const TextStyle _tileTitleComfortaa = TextStyle(
+    fontFamily: 'Comfortaa',
+    fontSize: 14.5,
+    fontWeight: FontWeight.w800,
+    color: _titleColor,
+    height: 1.2,
+  );
+
+  static const TextStyle _tileSubtitleComfortaa = TextStyle(
+    fontFamily: 'Comfortaa',
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+    color: _muted,
+    height: 1.2,
+  );
 
   static const TextStyle _snackComfortaa = TextStyle(
     fontFamily: 'Comfortaa',
@@ -125,7 +146,7 @@ class _ProfileDashboardState extends State<ProfileDashboard> {
             ],
           ),
 
-          const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
           // Account Actions
           const Text('Account', style: _sectionTilt),

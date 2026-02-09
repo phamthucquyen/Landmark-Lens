@@ -5,6 +5,7 @@ import '../../services/wrapped_service.dart';
 import 'city_card.dart';
 import 'recent_scan_tile.dart';
 import 'city_wrap_screen.dart';
+import 'city_wrap_screen.dart';
 
 class WrapScreen extends StatefulWidget {
   const WrapScreen({super.key});
@@ -101,8 +102,90 @@ class _WrapScreenState extends State<WrapScreen> {
     final topCityStr =
         (topCityRaw is String) ? topCityRaw.trim() : (topCityRaw?.toString().trim() ?? '');
 
-    // ✅ if top_city is unknown-like, ignore it
     final topCity = _isUnknownLike(topCityStr) ? null : topCityStr;
+
+    final items = (raw['items'] is List) ? (raw['items'] as List) : const [];
+
+    final List<Map<String, dynamic>> cities = topCity == null
+        ? <Map<String, dynamic>>[]
+        : <Map<String, dynamic>>[
+            {
+              'name': topCity,
+              'color_hex': '#7ADBCF',
+            }
+          ];
+
+    final List<Map<String, dynamic>> recent = items
+        .whereType<Map>()
+        .map((e) {
+          return <String, dynamic>{
+            'landmark_name': e['landmark_name'],
+            'timestamp': e['timestamp'],
+            'image_url': e['image_url'],
+          };
+        })
+        .toList();
+
+    return <String, dynamic>{
+      ...raw,
+      'cities': cities,
+      'recent_scans': recent,
+    };
+  }
+
+  /// ✅ Compatibility adapter:
+  /// - Old backend: { cities: [...], recent_scans: [...] }
+  /// - New backend: { top_city: "...", items: [...], ... }
+  /// This function returns a map that ALWAYS contains cities + recent_scans
+  Map<String, dynamic> _normalizeWrapped(Map<String, dynamic> raw) {
+    final hasOldCities = raw['cities'] is List;
+    final hasOldRecent = raw['recent_scans'] is List;
+    if (hasOldCities && hasOldRecent) return raw;
+
+    final topCityRaw = raw['top_city'];
+    final topCity = (topCityRaw is String && topCityRaw.trim().isNotEmpty)
+        ? topCityRaw.trim()
+        : null;
+
+    final items = (raw['items'] is List) ? (raw['items'] as List) : const [];
+
+    final List<Map<String, dynamic>> cities = topCity == null
+        ? <Map<String, dynamic>>[]
+        : <Map<String, dynamic>>[
+            {
+              'name': topCity,
+              'color_hex': '#7ADBCF',
+            }
+          ];
+
+    final List<Map<String, dynamic>> recent = items
+        .whereType<Map>()
+        .map((e) {
+          return <String, dynamic>{
+            'landmark_name': e['landmark_name'],
+            'timestamp': e['timestamp'],
+            'image_url': e['image_url'],
+          };
+        })
+        .toList();
+
+    return <String, dynamic>{
+      ...raw,
+      'cities': cities,
+      'recent_scans': recent,
+    };
+  }
+
+
+  Map<String, dynamic> _normalizeWrapped(Map<String, dynamic> raw) {
+    final hasOldCities = raw['cities'] is List;
+    final hasOldRecent = raw['recent_scans'] is List;
+    if (hasOldCities && hasOldRecent) return raw;
+
+    final topCityRaw = raw['top_city'];
+    final topCity = (topCityRaw is String && topCityRaw.trim().isNotEmpty)
+        ? topCityRaw.trim()
+        : null;
 
     final items = (raw['items'] is List) ? (raw['items'] as List) : const [];
 
@@ -200,23 +283,11 @@ class _WrapScreenState extends State<WrapScreen> {
               );
             }
 
-            final raw = snap.data ?? <String, dynamic>{};
+            final raw = snap.data ?? {};
             final data = _normalizeWrapped(raw);
 
-            final List rawCities = (data['cities'] as List?) ?? const [];
+            final List cities = (data['cities'] as List?) ?? const [];
             final List recent = (data['recent_scans'] as List?) ?? const [];
-
-            // ✅ Filter out unknown-like city cards entirely
-            final filteredCities = rawCities
-                .whereType<Map>()
-                .map((c) => c.cast<String, dynamic>())
-                .where((c) {
-                  final name = (c['name'] ?? '').toString();
-                  return !_isUnknownLike(name);
-                })
-                .toList();
-
-            final hasCities = filteredCities.isNotEmpty;
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -229,38 +300,56 @@ class _WrapScreenState extends State<WrapScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // ✅ City blocks: if no valid location -> hide section entirely (no empty placeholder)
-                  if (hasCities) ...[
-                    SizedBox(
-                      height: 145,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: filteredCities.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 18),
-                        itemBuilder: (context, i) {
-                          final city = filteredCities[i];
-                          final name = (city['name'] ?? '').toString().trim();
-                          final color =
-                              (city['color_hex'] ?? '#7ADBCF').toString();
+                  // ✅ ✅ City blocks (ONLY city name) (ONLY city name)
+                  SizedBox(
+                    height: 145,
+                    child: cities.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'No cities yet. Scan a landmark to start!',
+                              style: _emptyStateComfortaa,
+                              textAlign: TextAlign.center,
+                            ),
+                          )
+                        : ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: cities.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 18),
+                            itemBuilder: (context, i) {
+                              final city = cities[i] as Map?;
+                              final name =
+                                  (city?['name'] ?? 'Unknown').toString();
+                                  (city?['name'] ?? 'Unknown').toString();
+                              final color =
+                                  (city?['color_hex'] ?? '#7ADBCF').toString();
+                                  (city?['color_hex'] ?? '#7ADBCF').toString();
 
-                          return CityCard(
-                            name: name,
-                            colorHex: color,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => CityWrapScreen(cityName: name),
-                                ),
+                              return CityCard(
+                                name: name,
+                                colorHex: color,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          CityWrapScreen(cityName: name),
+                                    ),
+                                  );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          CityWrapScreen(cityName: name),
+                                    ),
+                                  );
+                                },
                               );
                             },
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-                  ],
+                          ),
+                  ),
 
+                  const SizedBox(height: 28),
                   Text(
                     'RECENT SCANS',
                     style: _sectionCapsComfortaa.copyWith(
@@ -269,6 +358,7 @@ class _WrapScreenState extends State<WrapScreen> {
                   ),
                   const SizedBox(height: 12),
 
+                  // ✅ Recent scans: title + time only
                   Expanded(
                     child: recent.isEmpty
                         ? const Center(
@@ -282,7 +372,9 @@ class _WrapScreenState extends State<WrapScreen> {
                             itemBuilder: (context, i) {
                               final scan = recent[i] as Map?;
                               final title =
-                                  (scan?['landmark_name'] ?? 'Unknown').toString();
+                                  (scan?['landmark_name'] ?? 'Unknown')
+                                      .toString();
+
                               final time = _formatTime(scan?['timestamp']);
                               final thumb = scan?['image_url']?.toString();
 
