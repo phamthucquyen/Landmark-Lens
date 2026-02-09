@@ -1,9 +1,9 @@
 class ApiConstants {
-  // For phone testing - use your computer's IP address
-  // For desktop testing - use localhost
-  // static const String ipAddress = '';
-  // static const String baseUrl = 'http://$ipAddress:8000';
-  static const String baseUrl = 'http://localhost:8000';
+  // Use environment variable for production, localhost for development
+  static const String baseUrl = String.fromEnvironment(
+    'API_URL',
+    defaultValue: 'http://localhost:8000',
+  );
 
   static const String identifyEndpoint = '/identify/';
   static const String scansEndpoint = '/scans';

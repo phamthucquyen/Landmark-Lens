@@ -8,6 +8,7 @@ Landmark Lens is a mobile application that uses Google Gemini 3 to identify land
 ### 📷 Photo-Based Landmark Recognition
 - Identify landmarks using images from camera or gallery
 - Real-time image processing with Gemini Multimodal AI
+- Personalized fun facts and descriptions based on user age and interests
 
 ### 🧠 AI-Powered Analysis (Gemini 3)
 - Multimodal understanding (image + context)
@@ -15,8 +16,9 @@ Landmark Lens is a mobile application that uses Google Gemini 3 to identify land
 - Confidence scoring and uncertainty handling
 - Smart caching system for faster responses
 
-### 🎯 Personalized Experience
-- Personalized fun facts and descriptions based on user age and interests
+### 📊 Journey Tracking & Analytics
+- "Wrapped" yearly summary feature
+- View past scans and exploration history
 
 ### 💬 Interactive AI Chatbot
 - Ask follow-up questions about landmarks
@@ -27,16 +29,9 @@ Landmark Lens is a mobile application that uses Google Gemini 3 to identify land
 - Live events nearby (Ticketmaster API)
 - Interactive Google Maps integration for exploration history
 
-### 📊 Journey Tracking & Analytics
-- "Wrapped" yearly summary feature
-- View past scans and exploration history
-
 ### 👤 User Profiles & Authentication
 - Secure authentication via Supabase
 - Save interests and preferences
-
-### 📱 Cross-Platform Mobile App
-- Built with Flutter (Android / iOS / Desktop supported)
 
 ### 🗣️ Accessibility Features
 - Text-to-speech (TTS) for landmark descriptions
