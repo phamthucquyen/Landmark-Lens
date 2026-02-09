@@ -36,6 +36,13 @@ class _CityWrapScreenState extends State<CityWrapScreen> {
     height: 1.33,
   );
 
+  String get _normalizedCity => widget.cityName.trim();
+
+  bool get _isUnknownCity {
+    final c = _normalizedCity.toLowerCase();
+    return c.isEmpty || c == 'unknown' || c == 'n/a' || c == 'null';
+  }
+
   String _formatTime(dynamic ts) {
     if (ts == null) return '';
     final dt = DateTime.tryParse(ts.toString());
@@ -51,10 +58,18 @@ class _CityWrapScreenState extends State<CityWrapScreen> {
   @override
   void initState() {
     super.initState();
+
     final user = Supabase.instance.client.auth.currentUser;
-    if (user != null) {
-      _future = _service.fetchCityScans(userId: user.id, city: widget.cityName);
-    }
+    if (user == null) return;
+
+    // ✅ Nếu cityName là Unknown/rỗng -> không fetch, không show list
+    if (_isUnknownCity) return;
+
+    // ✅ Chỉ fetch 1 lần
+    _future = _service.fetchCityScans(
+      userId: user.id,
+      city: _normalizedCity,
+    );
   }
 
   @override
@@ -70,7 +85,32 @@ class _CityWrapScreenState extends State<CityWrapScreen> {
       );
     }
 
-    _future ??= _service.fetchCityScans(userId: user.id, city: widget.cityName);
+    // ✅ Nếu cityName là Unknown/rỗng -> show explanation screen
+    if (_isUnknownCity) {
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: _titleColor),
+          title: const Text('Unknown location', style: _appBarTilt),
+        ),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Text(
+              'These scans don’t have city information yet.\n\n'
+              'This usually happens when location (lat/lng) wasn’t saved or reverse-geocoding failed.',
+              textAlign: TextAlign.center,
+              style: _emptyStateComfortaa,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // ✅ Nếu vì lý do nào đó _future chưa set (hiếm), set 1 lần
+    _future ??= _service.fetchCityScans(userId: user.id, city: _normalizedCity);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -78,7 +118,7 @@ class _CityWrapScreenState extends State<CityWrapScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: _titleColor),
-        title: Text(widget.cityName, style: _appBarTilt),
+        title: Text(_normalizedCity, style: _appBarTilt),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _future,
@@ -119,7 +159,7 @@ class _CityWrapScreenState extends State<CityWrapScreen> {
                 subtitle: time, // ✅ time only
                 thumbnailUrl: thumb,
                 onTap: () {
-                  // TODO: if you want, navigate to detail/result screen
+                  // TODO: navigate to detail/result screen if you want
                 },
               );
             },
