@@ -117,7 +117,7 @@ cd backend
 python main.py
 ```
 
-Backend runs at: [http://localhost:8000](http://localhost:8000)
+Backend runs at: [https://pov-7iec.onrender.com](https://pov-7iec.onrender.com)
 
 ### 3. Frontend Setup
 
@@ -154,6 +154,5 @@ We use Gemini 3 for:
 
 ## 🎥 Demo
 
-> 🔧 TODO: Add demo video link (YouTube/Vimeo)
+[https://pov-kohl.vercel.app/](https://pov-kohl.vercel.app/)
 
-Example: `https://youtu.be/your-demo-video`
